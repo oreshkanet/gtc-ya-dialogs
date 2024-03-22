@@ -1,0 +1,14 @@
+.idea
+.vscode
+*.iml
+out
+gen
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.txt
+*.out
+*.env
+.vscode
