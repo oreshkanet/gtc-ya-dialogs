@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/oreshkanet/gtc-ya-dialogs/ya-cloud/domain"
-	"github.com/oreshkanet/gtc-ya-dialogs/ya-cloud/errors"
+	"github.com/oreshkanet/gtc-ya-dialogs/internal/domain"
+	"github.com/oreshkanet/gtc-ya-dialogs/internal/errors"
 	"net/http"
 )
 
