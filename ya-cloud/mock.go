@@ -11,7 +11,7 @@ const (
 	Discovery requestType = "discovery"
 )
 
-func Handler(ctx context.Context, req RequestDTO) (*ResponseDTO, error) {
+func HandlerMock(ctx context.Context, req RequestDTO) (*ResponseDTO, error) {
 	print(fmt.Sprintf("%v", req))
 	res := &ResponseDTO{
 		RequestId: req.Headers.RequestId,
@@ -39,11 +39,6 @@ func Handler(ctx context.Context, req RequestDTO) (*ResponseDTO, error) {
 	print(fmt.Sprintf("%v", res))
 
 	return res, nil
-}
-
-func Handler1(ctx context.Context, req []byte) (*ResponseDTO, error) {
-	print(fmt.Sprintf("%v", string(req)))
-	return &ResponseDTO{}, nil
 }
 
 type RequestDTO struct {

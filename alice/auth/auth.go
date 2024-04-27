@@ -4,14 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/oreshkanet/gtc-ya-dialogs/internal/domain"
-	"github.com/oreshkanet/gtc-ya-dialogs/internal/errors"
+	"github.com/oreshkanet/gtc-ya-dialogs/alice/api"
+	"github.com/oreshkanet/gtc-ya-dialogs/alice/domain"
+	"github.com/oreshkanet/gtc-ya-dialogs/alice/errors"
 	"net/http"
 )
 
 type Service interface {
 	GetUser(ctx context.Context, id domain.UserID) (*domain.User, errors.Err)
-	GetUserForToken(ctx context.Context, token string) (*domain.User, error)
+	GetUserForToken(ctx context.Context, token string) (*domain.User, errors.Err)
+	AuthenticateAlice(ctx context.Context, req *api.Request) (context.Context, errors.Err)
 }
 
 var _ Service = &service{}
@@ -21,6 +23,18 @@ type service struct {
 	oauthSecret   string
 	domain        string
 	httpClient    http.Client
+}
+
+func NewService(deps Deps) (Service, errors.Err) {
+	conf := deps.GetConfig()
+	//secConf := deps.GetSecureConfig()
+	return &service{
+		oauthClientID: conf.OAuthClientID,
+		//oauthSecret:   secConf.OAuthSecret,
+		domain: conf.Domain,
+		//repo:          deps.GetRepository(),
+		//txMgr:         deps.GetTxManager(),
+	}, nil
 }
 
 func (s *service) GetUser(ctx context.Context, id domain.UserID) (*domain.User, errors.Err) {
@@ -41,7 +55,7 @@ func (s *service) GetUser(ctx context.Context, id domain.UserID) (*domain.User, 
 	return user, nil
 }
 
-func (s *service) GetUserForToken(ctx context.Context, token string) (*domain.User, error) {
+func (s *service) GetUserForToken(ctx context.Context, token string) (*domain.User, errors.Err) {
 	user, err := s.getYandexUser(ctx, token)
 	/*
 		if err != nil {
@@ -52,9 +66,23 @@ func (s *service) GetUserForToken(ctx context.Context, token string) (*domain.Us
 		})
 	*/
 	if err != nil {
-		return nil, err
+		return nil, errors.NewInternal(err)
 	}
 	return user, nil
+}
+
+func (s *service) AuthenticateAlice(ctx context.Context, req *api.Request) (context.Context, errors.Err) {
+	if req.Session.User == nil {
+		return ctx, errors.NewUnauthenticated()
+	}
+	if req.Session.User.Token == "" {
+		return ctx, errors.NewUnauthenticated()
+	}
+	user, err := s.GetUserForToken(ctx, req.Session.User.Token)
+	if err != nil {
+		return ctx, err
+	}
+	return s.ctxWithUser(ctx, user), nil
 }
 
 func (s *service) getYandexUser(ctx context.Context, oauthToken string) (*domain.User, error) {
@@ -87,4 +115,8 @@ func (s *service) getYandexUser(ctx context.Context, oauthToken string) (*domain
 		//Phone: res.DefaultPhone.Number,
 		Avatar: res.Avatar,
 	}, nil
+}
+
+func (s *service) ctxWithUser(ctx context.Context, user *domain.User) context.Context {
+	return context.WithValue(ctx, "alice_user", user)
 }
