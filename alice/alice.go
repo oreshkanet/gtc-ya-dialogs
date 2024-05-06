@@ -1,3 +1,5 @@
+// Интеграция с навыком Алисы
+
 package alice
 
 import (
