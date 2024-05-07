@@ -31,7 +31,7 @@ func (a *App) Handle(ctx context.Context, req *api.Request) (*api.Response, erro
 }
 
 func (a *App) handle(ctx context.Context, req *api.Request) (*api.Response, errors.Err) {
-	req.Request.Command
+	//req.Request.Command
 
 	if req.Session.New || req.AccountLinkingComplete != nil {
 		return &api.Response{Response: &api.Resp{

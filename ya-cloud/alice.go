@@ -8,8 +8,10 @@ import (
 	"go.uber.org/zap"
 )
 
+// aliceAppInstance - singleton-инстанс сервиса alice
 var aliceAppInstance *alice.App
 
+// initAliceApp - инициализация сервиса alice
 func initAliceApp() (*alice.App, error) {
 	ctx := context.Background()
 
